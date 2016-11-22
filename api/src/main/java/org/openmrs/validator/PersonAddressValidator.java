@@ -11,6 +11,9 @@ package org.openmrs.validator;
 
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringUtils;
@@ -67,6 +70,7 @@ public class PersonAddressValidator implements Validator {
 		
 		PersonAddress personAddress = (PersonAddress) object;
 		
+		
 		//resolve a shorter name to display along with the error message
 		String addressString = null;
 		if (StringUtils.isNotBlank(personAddress.getAddress1())) {
@@ -78,6 +82,23 @@ public class PersonAddressValidator implements Validator {
 		} else {
 			addressString = personAddress.toString();
 		}
+
+		String cityVillage = personAddress.getCityVillage();
+		boolean isAllowed = false;
+		String pattern = "[^a-zA-Z\\s-]";
+		Pattern r = Pattern.compile(pattern);
+		Matcher m = r.matcher(cityVillage);
+		if (m.find( )) {
+			isAllowed = false;
+		}else {
+			isAllowed = true;
+		}
+		if(!isAllowed) {
+			System.out.println("hello gello123 "+isAllowed);
+			errors.rejectValue("cityVillage", "PersonAddress.error.illegalCityVillage", new Object[] { "'" + addressString
+			        + "'" }, "The village/city name contains illegal characters.");
+		}
+		
 		
 		if (OpenmrsUtil.compareWithNullAsEarliest(personAddress.getStartDate(), new Date()) > 0) {
 			errors.rejectValue("startDate", "PersonAddress.error.startDateInFuture", new Object[] { "'" + addressString
@@ -89,6 +110,7 @@ public class PersonAddressValidator implements Validator {
 			errors.rejectValue("endDate", "PersonAddress.error.endDateBeforeStartDate", new Object[] { "'" + addressString
 			        + "'" }, "The End Date for address '" + addressString + "' shouldn't be earlier than the Start Date");
 		}
+		
 		
 		String xml = Context.getLocationService().getAddressTemplate();
 		List<String> requiredElements;
